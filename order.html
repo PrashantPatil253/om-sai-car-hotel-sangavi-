@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Om Sai Car Hotel - Order</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#10150f;
+  color:#fff;
+}
+header{
+  background:#080c08;
+  padding:18px;
+  text-align:center;
+  border-bottom:1px solid #d8ad45;
+}
+header h1{
+  margin:0;
+  color:#f0c65a;
+  font-size:25px;
+}
+header p{
+  margin:6px 0 0;
+  color:#bbb;
+}
+.container{
+  padding:15px;
+  max-width:700px;
+  margin:auto;
+}
+.card{
+  background:#181e17;
+  border:1px solid #66552b;
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:15px;
+}
+h2{
+  color:#f0c65a;
+  margin-top:0;
+}
+input,select{
+  width:100%;
+  padding:13px;
+  margin:6px 0 12px;
+  border-radius:8px;
+  border:1px solid #777;
+  background:#fff;
+  color:#111;
+  font-size:16px;
+}
+.menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.item{
+  background:#222a20;
+  border:1px solid #65552d;
+  border-radius:10px;
+  padding:12px;
+}
+.item b{
+  display:block;
+  margin-bottom:8px;
+}
+.item button{
+  background:#e9b94f;
+  border:0;
+  border-radius:7px;
+  padding:9px 13px;
+  font-weight:bold;
+}
+#bill{
+  background:#fff;
+  color:#111;
+  padding:15px;
+  border-radius:12px;
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px dashed #aaa;
+  padding:7px 0;
+}
+.total{
+  font-size:21px;
+  font-weight:bold;
+  padding-top:12px;
+}
+button.main{
+  width:100%;
+  padding:15px;
+  border:0;
+  border-radius:10px;
+  background:#e9b94f;
+  color:#111;
+  font-size:17px;
+  font-weight:bold;
+  margin-top:10px;
+}
+button.whatsapp{
+  background:#25d366;
+  color:white;
+}
+.empty{
+  color:#777;
+  text-align:center;
+  padding:15px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Om Sai Car Hotel</h1>
+  <p>Order & Billing System</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>Customer Details</h2>
+
+<input id="customer" placeholder="Customer Name">
+
+<input id="mobile"
+       type="tel"
+       maxlength="10"
+       placeholder="WhatsApp Number (10 digits)">
+</div>
+
+<div class="card">
+<h2>Menu</h2>
+
+<div class="menu">
+
+<div class="item">
+<b>Tea - ₹20</b>
+<button onclick="addItem('Tea',20)">ADD</button>
+</div>
+
+<div class="item">
+<b>Coffee - ₹30</b>
+<button onclick="addItem('Coffee',30)">ADD</button>
+</div>
+
+<div class="item">
+<b>Misal Pav - ₹80</b>
+<button onclick="addItem('Misal Pav',80)">ADD</button>
+</div>
+
+<div class="item">
+<b>Poha - ₹50</b>
+<button onclick="addItem('Poha',50)">ADD</button>
+</div>
+
+<div class="item">
+<b>Paneer Masala - ₹180</b>
+<button onclick="addItem('Paneer Masala',180)">ADD</button>
+</div>
+
+<div class="item">
+<b>Veg Thali - ₹150</b>
+<button onclick="addItem('Veg Thali',150)">ADD</button>
+</div>
+
+<div class="item">
+<b>Chicken Thali - ₹220</b>
+<button onclick="addItem('Chicken Thali',220)">ADD</button>
+</div>
+
+<div class="item">
+<b>Chapati - ₹15</b>
+<button onclick="addItem('Chapati',15)">ADD</button>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Current Order</h2>
+
+<div id="orderList" class="empty">
+No items added
+</div>
+
+<button class="main"
+onclick="clearOrder()">
+CLEAR ORDER
+</button>
+</div>
+
+<div class="card">
+<h2>Payment</h2>
+
+<select id="payment">
+<option value="Cash">Cash</option>
+<option value="UPI">UPI</option>
+<option value="Card">Card</option>
+<option value="Pending">Pending</option>
+</select>
+
+<div id="bill">
+<h2 style="text-align:center">OM SAI CAR HOTEL</h2>
+
+<p id="billCustomer">Customer: -</p>
+
+<div id="billItems"></div>
+
+<div class="row">
+<span>Subtotal</span>
+<span id="subtotal">₹0</span>
+</div>
+
+<div class="row">
+<span>GST</span>
+<span id="gst">₹0</span>
+</div>
+
+<div class="row total">
+<span>TOTAL</span>
+<span id="total">₹0</span>
+</div>
+
+<p>
+Payment: <b id="billPayment">Cash</b>
+</p>
+
+</div>
+
+<button class="main"
+onclick="generateBill()">
+GENERATE BILL
+</button>
+
+<button class="main whatsapp"
+onclick="sendWhatsApp()">
+📱 SEND BILL ON WHATSAPP
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let order=[];
+
+function addItem(name,price){
+
+  let existing=order.find(x=>x.name===name);
+
+  if(existing){
+    existing.qty++;
+  }else{
+    order.push({
+      name:name,
+      price:price,
+      qty:1
+    });
+  }
+
+  updateOrder();
+}
+
+function updateOrder(){
+
+  let list=document.getElementById("orderList");
+
+  if(order.length===0){
+    list.innerHTML="No items added";
+    list.className="empty";
+  }else{
+
+    list.className="";
+
+    list.innerHTML=order.map((item,index)=>`
+      <div class="row">
+        <span>
+          ${item.name} × ${item.qty}
+        </span>
+
+        <span>
+          ₹${item.price*item.qty}
+          <button onclick="removeItem(${index})"
+          style="margin-left:5px">
+          −
+          </button>
+        </span>
+      </div>
+    `).join("");
+  }
+
+  calculate();
+}
+
+function removeItem(index){
+
+  if(order[index].qty>1){
+    order[index].qty--;
+  }else{
+    order.splice(index,1);
+  }
+
+  updateOrder();
+}
+
+function clearOrder(){
+
+  order=[];
+
+  updateOrder();
+
+  document.getElementById("subtotal").innerText="₹0";
+  document.getElementById("gst").innerText="₹0";
+  document.getElementById("total").innerText="₹0";
+}
+
+function calculate(){
+
+  let subtotal=0;
+
+  order.forEach(item=>{
+    subtotal += item.price * item.qty;
+  });
+
+  let gst=subtotal*0.05;
+  let total=subtotal+gst;
+
+  document.getElementById("subtotal").innerText=
+    "₹"+subtotal.toFixed(2);
+
+  document.getElementById("gst").innerText=
+    "₹"+gst.toFixed(2);
+
+  document.getElementById("total").innerText=
+    "₹"+total.toFixed(2);
+
+}
+
+function generateBill(){
+
+  let customer=document.getElementById("customer").value || "Walk-in Customer";
+
+  let payment=document.getElementById("payment").value;
+
+  document.getElementById("billCustomer").innerText=
+    "Customer: "+customer;
+
+  document.getElementById("billPayment").innerText=
+    payment;
+
+  let html="";
+
+  order.forEach(item=>{
+    html+=`
+      <div class="row">
+        <span>${item.name} × ${item.qty}</span>
+        <span>₹${item.price*item.qty}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("billItems").innerHTML=
+    html || "<p>No items</p>";
+
+  calculate();
+
+  alert("Bill generated successfully!");
+}
+
+function sendWhatsApp(){
+
+  if(order.length===0){
+    alert("Please add items first.");
+    return;
+  }
+
+  let mobile=document.getElementById("mobile").value;
+
+  if(mobile.length!==10){
+    alert("Please enter a valid 10 digit WhatsApp number.");
+    return;
+  }
+
+  let customer=
+    document.getElementById("customer").value ||
+    "Customer";
+
+  let payment=
+    document.getElementById("payment").value;
+
+  let subtotal=0;
+
+  let message=
+`*OM SAI CAR HOTEL*
+Sangavi, Shirpur, Dhule
+
+Customer: ${customer}
+
+*ORDER*
+`;
+
+  order.forEach(item=>{
+
+    let amount=item.price*item.qty;
+
+    subtotal+=amount;
+
+    message+=
+`${item.name} × ${item.qty} = ₹${amount}
+`;
+
+  });
+
+  let gst=subtotal*0.05;
+  let total=subtotal+gst;
+
+  message+=`
+Subtotal: ₹${subtotal.toFixed(2)}
+GST: ₹${gst.toFixed(2)}
+*TOTAL: ₹${total.toFixed(2)}*
+
+Payment: ${payment}
+
+Thank you for visiting
+*Om Sai Car Hotel*`;
+
+  let url=
+    "https://wa.me/91"+
+    mobile+
+    "?text="+
+    encodeURIComponent(message);
+
+  window.open(url,"_blank");
+
+}
+
+document.getElementById("payment")
+.addEventListener("change",function(){
+
+  document.getElementById("billPayment")
+  .innerText=this.value;
+
+});
+
+</script>
+
+</body>
+</html>
